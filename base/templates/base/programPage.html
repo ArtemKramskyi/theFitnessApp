@@ -1,0 +1,83 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block body %}
+  {% block script %}
+    <script defer src="{% static 'base/programPage.js' %}"></script>
+  {% endblock %}
+
+<div class="modal h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 hidden">
+  <div class="bg-white rounded shadow-lg w-1/3 md:w-fit">
+      <div class="border-b px-4 py-2">
+          <h3>Edit Program</h3>
+      </div>
+      <form method="POST" action="{% url 'editProgram' %}" name="editProgramForm" id="editProgramForm">
+          {% csrf_token %}
+          <div class="p-3">
+              <input type="hidden" name="id" value="{{ program.id }}">
+              <label for="id_programName" class="font-bold text-xl">Name:</label>
+              {{ form.programName }}
+          </div>
+      </form>
+      <div class="flex justify-end items-center w-100 border-t p-3">
+          <button class="bg-red-400 hover:bg-red-500 px-3 py-1 rounded text-white mr-1 close-modal">Back</button>
+          <button class="bg-sky-400 hover:bg-sky-500 px-3 py-1 rounded text-white add-modal">Add</button>
+      </div>
+  </div>
+</div>
+<section class="indexExercises">
+  <span>
+    <h2 class="inline-block mr-3">{{program.programName}}</h2>
+    <i class="fa-solid fa-pen-to-square hover:text-sky-600 show-modal cursor-pointer" title="Edit"></i>
+    <form action="{% url 'deleteProgram' %}" method="POST" name="deleteProgramForm" class="inline-block ml-2">
+      {% csrf_token %}
+      <input type="hidden" value="{{program.id}}" name="id">
+      <i class="fa-regular fa-trash-can hover:text-red-600 deleteProgramButton cursor-pointer" title="Delete"></i>
+    </form>
+  </span>
+    <br>
+  {% for exercise in exercises %}
+      {% for activity in plan %}
+          {% with x=exercise.exerciseName|stringformat:"s" y=activity.exercise|stringformat:"s" %}
+              {% if x == y %}
+  <section class="text-gray-800 text-center md:text-left"> 
+      <div class="flex flex-wrap mb-6">
+        <div class="grow-0 shrink-0 basis-auto w-full md:w-3/12 px-3 mb-6 md:mb-0 ml-auto">
+          <div class="relative overflow-hidden bg-no-repeat bg-cover relative overflow-hidden bg-no-repeat bg-cover ripple shadow-lg rounded-lg mb-6" data-mdb-ripple="true" data-mdb-ripple-color="light">
+            {% if exercise.exerciseImg == "" %}
+            <img src="https://riversidehamilton.com.au/wp-content/uploads/2020/04/no0image.jpg" class="w-full" />
+            {% else %}
+            <img src="{{ exercise.exerciseImg }}" class="w-full" />
+            {% endif %}
+            <a href="">
+              <div class="absolute top-0 right-0 bottom-0 left-0 w-full h-full overflow-hidden bg-fixed opacity-0 hover:opacity-100 transition duration-300 ease-in-out"
+                style="background-color: rgba(251, 251, 251, 0.2)"></div>
+            </a>
+          </div>
+        </div>
+        <div class="grow-0 shrink-0 basis-auto w-full md:w-9/12 xl:w-7/12 px-3 mb-6 md:mb-0 mr-auto" id="removeExerciseForm{{exercise.id}}">
+          <h5 class="text-lg font-bold mb-3 inline-block mr-3">{{exercise.exerciseName}}</h5>
+          <form action="{% url 'deleteExercise' %}" method="POST" name="removeExerciseForm{{exercise.id}}" id="" class="inline-block">
+            {% csrf_token %}
+            <input type="hidden" value="{{exercise.id}}" name="exerciseId">
+            <input type="hidden" value="{{program.id}}" name="programId">
+          </form>
+          <i class="fa-regular fa-square-minus hover:text-red-600 deleteProgramButton cursor-pointer remove-exercise inline-block" title="Remove"></i>
+          <div class="mb-3 text-red-600 font-medium text-sm flex items-center justify-center md:justify-start">
+              <span class="inline-block">{{exercise.get_category_display}}</span> 
+          </div>
+          <div class="mb-3 text-blue-800 font-medium flex items-center justify-center md:justify-start">
+              <i class="fa-solid fa-list-check" fill="currentColor"></i><span class="inline-block">&nbsp; Sets: {{exercise.sets}}  |  Reps: {{exercise.reps}}</span>
+          </div>
+          <p class="text-gray-500">
+            {{exercise.exerciseDescription}}
+          </p>
+        </div>
+      </div>
+  </section>
+              {% endif %}
+          {% endwith %}
+      {% endfor %}
+  {% endfor %}   
+</section>
+{% endblock body %}

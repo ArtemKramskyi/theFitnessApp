@@ -1,0 +1,115 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block body %}
+    {% block script %}
+    <script defer src="{% static 'base/index.js' %}"></script>
+    {% endblock %}
+{% if user.is_authenticated %}
+
+<div class="modal h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white rounded shadow-lg w-1/3 md:w-fit">
+        <div class="border-b px-4 py-2">
+            <h3>Add Program</h3>
+        </div>
+        <form method="POST" action="{% url 'addProgram' %}" name="addProgramForm" id="addProgramForm">
+            {% csrf_token %}
+            <div class="p-3">
+                <input type="hidden" name="user" value="{{ request.user.id }}">
+                <label for="id_programName" class="font-bold text-xl">Name:</label>
+                {{ formProgram.programName }}
+            </div>
+        </form>
+        <div class="flex justify-end items-center w-100 border-t p-3">
+            <button class="bg-red-400 hover:bg-red-500 px-3 py-1 rounded text-white mr-1 close-modal">Back</button>
+            <button class="bg-sky-400 hover:bg-sky-500 px-3 py-1 rounded text-white add-modal">Add</button>
+        </div>
+    </div>
+</div>
+<section class="indexExercises">
+    <div class="self-end mr-[15%]">
+        <form action="{% url 'search' %}" method="POST">
+            {% csrf_token %}
+            <input class="form-select px-2 py-1.5 text-base font-normal text-gray-700 border border-solid border-gray-300 
+            rounded transition ease-in-out m-1 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" 
+            type="text" name="q" placeholder="Search Exercise">
+            <input class="inline-block px-6 py-2.5 bg-blue-400 text-white font-medium text-xs leading-tight uppercase 
+            rounded shadow-md hover:bg-blue-500 hover:shadow-lg focus:bg-blue-500 focus:shadow-lg focus:outline-none 
+            focus:ring-0 active:bg-blue-600 active:shadow-lg transition duration-150 ease-in-out" 
+            type="submit" value="Search">
+        </form>
+        <form action="{% url 'index' %}" method="POST">
+            {% csrf_token %}
+            <label class="p-2 font-semibold" for="categoryFormId">Category: </label>
+            {{ form.category|safe }} 
+            <input class="inline-block px-6 py-2.5 bg-blue-400 text-white font-medium text-xs leading-tight uppercase 
+            rounded shadow-md hover:bg-blue-500 hover:shadow-lg focus:bg-blue-500 focus:shadow-lg focus:outline-none 
+            focus:ring-0 active:bg-blue-600 active:shadow-lg transition duration-150 ease-in-out" 
+            type="submit" value="Filter" name="queryCategory">
+        </form>
+    </div>
+    <ul class="flex flex-col p-2 ml-2">
+        <h2>Exercises</h2>
+        <button class="text-blue-600 hover:text-blue-800 show-modal w-fit mx-auto">Add new program</button>
+        {% for exercise in exercises %}
+            <div class="cursor-default" href="">
+                <div class="flex flex-col md:flex-row md:max-w-2xl rounded-lg bg-grey shadow-lg p-4">
+                    {% if exercise.exerciseImg == "" %}
+                    <img src="" alt="" hidden="true">
+                    {% else %}
+                    <img src="{{ exercise.exerciseImg }}" alt="Exercise Image" 
+                    class="w-full max-w-xs h-96 md:h-auto object-cover md:w-48 rounded-t-lg md:rounded-none md:rounded-l-lg">
+                    {% endif %}
+                    <div class="p-6 flex flex-col justify-start">
+                        <li>
+                            <h2 class="inline-block text-gray-900 text-xl font-medium mb-2">{{ exercise.exerciseName }}</h2>
+                            <span id="addExerciseForm{{exercise.id}}" class="float-right flex">
+                                <form action="{% url 'addExercise' %}" method="POST" name="addExerciseForm{{exercise.id}}">
+                                    {% csrf_token %}
+                                    <input type="hidden" value="{{exercise.id}}" name="exerciseId">
+                                    <select class="cursor-pointer hover:opacity-75 border" name="programId" id="program-select" required>
+                                        <option value="">Add to program</option>      
+                                        {% for program in programs %}
+                                        <option value="{{program.id}}">{{ program.programName }}</option>
+                                        {% endfor %}
+                                    </select> 
+                                </form>
+                                <i class="fa-regular fa-square-plus pl-2 hover:text-blue-600 cursor-pointer add-exercise" title="Add"></i>
+                            </span>
+                        </li>
+                        <p class="text-gray-700 text-base mb-4"><i>{{ exercise.exerciseDescription }}</i></p>
+                        <p class="text-gray-600 text-xs">{{ exercise.get_category_display }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </ul>
+</section>
+{% else %}
+<section class="relative overflow-hidden rounded-lg bg-cover bg-no-repeat p-12 text-center"
+style="background-image: url('https://wallpaperbat.com/img/383643-gym-wallpaper.jpg'); height: 520px; background-position-y: -8rem">
+    <div
+    class="absolute bottom-0 left-0 right-0 top-0 h-full w-full overflow-hidden bg-fixed"
+    style="background-color: rgba(0, 0, 0, 0.6)">
+        <div class="flex h-full items-center justify-center">
+            <div class="text-white">
+            <h2 class="mb-4 text-4xl font-semibold">KEEP TRACK OF YOUR FITNESS</h2>
+            <h4 class="mb-6 text-xl font-semibold">Create your own training plan, exercises and more!</h4>
+            <a
+                type="button"
+                class="rounded border-2 border-neutral-50 px-7 pb-[8px] pt-[10px] text-sm font-medium uppercase leading-normal text-neutral-50 transition duration-150 
+                ease-in-out hover:border-neutral-100 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-neutral-100 focus:border-neutral-100 focus:text-neutral-100 
+                focus:outline-none focus:ring-0 active:border-neutral-200 active:text-neutral-200 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
+                data-te-ripple-init
+                data-te-ripple-color="light"
+                href="{% url 'login' %}">
+                TRY NOW
+            </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+
+{% endblock body %}

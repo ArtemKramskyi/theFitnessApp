@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block body %}
+{% for program in programs %}
+
+<a href="{% url 'programPage' program.id %}">
+    <div class="flex programInstancesContainer">
+        <h3 class="inline-block font-bold ml-10">{{ program.programName }}</h3>
+    </div>
+</a>
+
+{% endfor %}
+{% endblock body %}
